@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     struct timeval *bucketTime1, *bucketTime2;
     struct timeval *rttTime1, *rttTime2;
 
-    struct timeval opTV1, opTV2, opTV3, bktTV1, bktTV2, rttTV1, rrtTV2;
+    struct timeval opTV1, opTV2, bktTV1, bktTV2, rttTV1, rrtTV2;
     struct sigaction myaction;
     
     // 1 is for operation time, 2 for bucketTime, 3 for rtt time
@@ -71,7 +71,6 @@ int main(int argc, char *argv[])
     
     opTime1 = &opTV1;
     opTime2 = &opTV2;
-    opTime3 = &opTV3;
     bucketTime1 = &bktTV1;
     bucketTime2 = &bktTV2;
     rttTime1 = &rttTV1;
