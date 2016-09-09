@@ -26,7 +26,7 @@
 
 #define ECHOMAX 10000     /* Longest string to echo */
 
-#ifdef 0
+#ifdef MC
 #ifndef LINUX
 #define INADDR_NONE  0xffffffff
 #endif
