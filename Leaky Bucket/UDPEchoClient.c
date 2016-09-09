@@ -39,6 +39,7 @@ unsigned long avgSendingRate;
 unsigned long avgLossRate;
 double totalElapsedTime;
 int bStop;
+struct timeval *opTime1;
 
 char Version[] = "1.1";   
 
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
     struct hostent *thehost;	        /* Hostent from gethostbyname() */
 
     //Consider time 1 for operation time, 2 for bucket time, 3 for RTT time
-    struct timeval *opTime1, *opTime2, *opTime3;
+    struct timeval *opTime2;
     struct timeval *bucketTime1, *bucketTime2;
     struct timeval *rttTime1, *rttTime2;
 
@@ -64,7 +65,7 @@ int main(int argc, char *argv[])
     struct sigaction myaction;
     
     // 1 is for operation time, 2 for bucketTime, 3 for rtt time
-    double usec1 = 0, usec2, usec3 = 0, usec4 = 0;
+    double usec1 = 0, usec2, usec3 = 0;
     int *seqNumberPtr;
     unsigned int seqNumber = 1;
     
@@ -272,18 +273,15 @@ int main(int argc, char *argv[])
             nIterations--;
             numberOfTrials++; 
         }
-        gettimeofday(opTime2, NULL);
-	usec1 = ((opTime2->tv_sec) * 1000000 + (opTime2->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
-        totalElapsedTime += usec1;
     }
 
-    gettimeofday(opTime3, NULL);
-    usec4 = ((opTime3->tv_sec) * 1000000 + (opTime3->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
+    gettimeofday(opTime2, NULL);
+    usec1 = ((opTime2->tv_sec) * 1000000 + (opTime2->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
 
-    printf("Total elapsed time %f Total test time %f \n", totalElapsedTime, usec4);    
+    printf("Total test time %f \n", usec1);    
     printf("totalBytesSent : %lu \n", totalBytesSent);
     if (numberOfTrials != 0) 
-        avgSendingRate = (totalBytesSent * 1000000/totalElapsedTime) * 8;
+        avgSendingRate = (totalBytesSent * 1000000/usec1) * 8;
     
     if (numberOfTimeOuts != 0) 
         avgLossRate = ((numberOfTimeOuts*100)/numberOfTrials);
@@ -294,14 +292,18 @@ int main(int argc, char *argv[])
 
 void CatchAlarm(int ignored) { }
 
-void clientCNTCCode() {
+void clientCNTCCode() 
+{
+    double usec4 = 0.0;
+    gettimeofday(opTime2, NULL);
+    usec4 = ((opTime2->tv_sec) * 1000000 + (opTime2->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
 
     avgSendingRate = 0;
     avgLossRate = 0;
-  
     bStop = 1;
+    
     if (numberOfTrials != 0) 
-        avgSendingRate = (totalElapsedTime/numberOfTrials);
+        avgSendingRate = (totalBytesSent * 1000000/usec4) * 8;
     
     if (numberOfTimeOuts != 0) 
         avgLossRate = ((numberOfTimeOuts*100)/numberOfTrials);
