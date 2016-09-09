@@ -294,9 +294,9 @@ void CatchAlarm(int ignored) { }
 void clientCNTCCode() 
 {
     struct timeval *opTime;
-    struct timeval opTV,
-    opTime = &opTV
+    struct timeval opTV;
     double usec4 = 0.0;
+    opTime = &opTV;
     gettimeofday(opTime, NULL);
     usec4 = ((opTime->tv_sec) * 1000000 + (opTime->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
 
