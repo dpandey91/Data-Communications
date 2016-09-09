@@ -56,20 +56,21 @@ int main(int argc, char *argv[])
     struct hostent *thehost;	        /* Hostent from gethostbyname() */
 
     //Consider time 1 for operation time, 2 for bucket time, 3 for RTT time
-    struct timeval *opTime1, *opTime2;
+    struct timeval *opTime1, *opTime2, *opTime3;
     struct timeval *bucketTime1, *bucketTime2;
     struct timeval *rttTime1, *rttTime2;
 
-    struct timeval opTV1, opTV2, bktTV1, bktTV2, rttTV1, rrtTV2;
+    struct timeval opTV1, opTV2, opTV3, bktTV1, bktTV2, rttTV1, rrtTV2;
     struct sigaction myaction;
     
     // 1 is for operation time, 2 for bucketTime, 3 for rtt time
-    double usec1 = 0, usec2, usec3 = 0;
+    double usec1 = 0, usec2, usec3 = 0, usec4 = 0;
     int *seqNumberPtr;
     unsigned int seqNumber = 1;
     
     opTime1 = &opTV1;
     opTime2 = &opTV2;
+    opTime3 = &opTV3;
     bucketTime1 = &bktTV1;
     bucketTime2 = &bktTV2;
     rttTime1 = &rttTV1;
@@ -100,7 +101,7 @@ int main(int argc, char *argv[])
     unsigned int bMode = 0;
     
     //Default no. of iteration is 1
-    int nIterations = 1;
+    int nIterations = 10;
     
     //Default value for debug flag is false
     int bDebugFlag = 0;
@@ -226,6 +227,7 @@ int main(int argc, char *argv[])
             usec2 = currBktTime - lastBktTime;
             lastBktTime = currBktTime;
             currBucketSz += avgRate * usec2;
+            printf("Ohh bucket is leaky \n");
         }
         else
         {
@@ -262,7 +264,7 @@ int main(int argc, char *argv[])
                     totalBytesSent +=  messageSize;
                     gettimeofday(rttTime2, NULL);
                     usec3 = ((rttTime2->tv_sec) * 1000000 + (rttTime2->tv_usec)) - ((rttTime1->tv_sec) * 1000000 + (rttTime1->tv_usec));
-                    printf("RTT value for complete iter %d is %f", completeIter, usec3);
+                    printf("RTT value for complete iter %d is %f \n", completeIter, usec3);
                     RTT[completeIter++] = usec3;    
                 }
             }
@@ -274,14 +276,19 @@ int main(int argc, char *argv[])
 	usec1 = ((opTime2->tv_sec) * 1000000 + (opTime2->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
         totalElapsedTime += usec1;
     }
-    
+
+    gettimeofday(opTime3, NULL);
+    usec4 = ((opTime3->tv_sec) * 1000000 + (opTime3->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
+
+    printf("Total elapsed time %f Total test time %f \n", totalElapsedTime, usec4);    
+    printf("totalBytesSent : %lu \n", totalBytesSent);
     if (numberOfTrials != 0) 
-        avgSendingRate = (totalElapsedTime/numberOfTrials);
+        avgSendingRate = (totalBytesSent * 1000000/totalElapsedTime) * 8;
     
     if (numberOfTimeOuts != 0) 
         avgLossRate = ((numberOfTimeOuts*100)/numberOfTrials);
 
-    printf("\nAvg Ping: %ld microseconds Loss: %ld Percent\n", avgSendingRate, avgLossRate);
+    printf("\nAvg sending rate: %ld microseconds Loss: %ld Percent\n", avgSendingRate, avgLossRate);
     exit(0);
 }
 
