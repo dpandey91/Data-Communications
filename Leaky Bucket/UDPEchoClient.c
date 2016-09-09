@@ -235,6 +235,7 @@ int main(int argc, char *argv[])
             {
               DieWithError("sendto() sent a different number of bytes than expected"); 
             }
+            currBucketSz -= messageSize;
                        
             /* Recv a response */
             fromSize = sizeof(fromAddr);

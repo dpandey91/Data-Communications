@@ -38,6 +38,7 @@ typedef struct clientConnectInfo{
 char bStop = 0;
 int totalClientConnections = 0;
 connInfo* connectInfo = 0;
+int sock;                           /* Socket */
 
 void DieWithError(char *errorMessage);  /* External error handling function */
 
@@ -52,7 +53,6 @@ double generateRandom()
 
 int main(int argc, char *argv[])
 {
-    int sock;                           /* Socket */
     struct sockaddr_in echoServAddr;    /* Local address */
     struct sockaddr_in echoClntAddr;    /* Client address */
     unsigned int cliAddrLen;            /* Length of incoming message */
@@ -245,6 +245,8 @@ void clientCNTCCode()
         printf("IP: %s Port: %d SessionDuration: %0.3f BytesReceived: %lu AvgThrouput: %lu AvgLossRate: %f", 
                 clientIpAddr, port, sessionDuration, clientBytesRecvd, avgThroughput, avgLossRate);
     }
+    
+    close(sock);
 
     exit(0);
 }
