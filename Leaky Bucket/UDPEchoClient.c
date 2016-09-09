@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
             numberOfTrials++; 
         }
         gettimeofday(opTime2, NULL);
-        usec1 = ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec)) - ((opTime2->tv_sec) * 1000000 + (opTime2->tv_usec));
+	usec1 = ((opTime2->tv_sec) * 1000000 + (opTime2->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
         totalElapsedTime += usec1;
     }
     
