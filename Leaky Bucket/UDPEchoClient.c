@@ -293,9 +293,12 @@ void CatchAlarm(int ignored) { }
 
 void clientCNTCCode() 
 {
+    struct timeval *opTime;
+    struct timeval opTV,
+    opTime = &opTV
     double usec4 = 0.0;
-    gettimeofday(opTime2, NULL);
-    usec4 = ((opTime2->tv_sec) * 1000000 + (opTime2->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
+    gettimeofday(opTime, NULL);
+    usec4 = ((opTime->tv_sec) * 1000000 + (opTime->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
 
     avgSendingRate = 0;
     avgLossRate = 0;
