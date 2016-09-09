@@ -37,7 +37,7 @@ unsigned long totalBytesSent;
 unsigned long totalBytesLost;
 unsigned long avgSendingRate;
 unsigned long avgLossRate;
-long totalElapsedTime;
+double totalElapsedTime;
 int bStop;
 
 char Version[] = "1.1";   
