@@ -49,7 +49,7 @@ int checkAllOne(unsigned int value)
 { 
     unsigned int mask = (1ULL << 32) - 1;
     value &= mask;
-    return value == mask || val == 0;
+    return value == mask || value == 0;
 }
 
 double generateRandom()
