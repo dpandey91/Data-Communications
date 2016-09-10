@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
     bMode = 0;
     
     //Default no. of iteration is 1
-    int nIterations = 10;
+    int nIterations = 0;
     
     //Default value for debug flag is false
     int bDebugFlag = 0;
@@ -215,7 +215,8 @@ int main(int argc, char *argv[])
     if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
         DieWithError("socket() failed");
     
-    while (nIterations > 0 && bStop != 1) 
+    int bForEver = nIterations == 0 ? 1 : 0;
+    while ((bForEver || nIterations > 0) && bStop != 1) 
     {
         if(nIterations == 1)
         {
