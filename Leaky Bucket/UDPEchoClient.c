@@ -27,7 +27,7 @@ unsigned long totalBytesSent;
 unsigned long totalBytesLost;
 unsigned long avgSendingRate;
 double avgLossRate;
-double totalRTT,minRTT=0.0,maxRTT=0.0;
+double totalRTT , minRTT = -1.0, maxRTT= -1.0 ;
 int bStop;
 struct timeval *opTime1;
 int completeIter = 0;
@@ -268,6 +268,8 @@ int main(int argc, char *argv[])
                     usec3 = ((rttTime2->tv_sec) * 1000000 + (rttTime2->tv_usec)) - ((rttTime1->tv_sec) * 1000000 + (rttTime1->tv_usec));
                     printf("RTT value for complete iter %d is %f \n", completeIter, usec3);
                     
+                    if(minRTT < 0)
+                        minRTT = usec3;    
                     if(usec3 < minRTT)
 		        minRTT = usec3;
                     if(usec3 > maxRTT)
