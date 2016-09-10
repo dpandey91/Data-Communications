@@ -216,14 +216,14 @@ int main(int argc, char *argv[])
                 //This means its RTT mode
                 if(checkAllOne(seqNumber))
                 {
-                    if (sendto(sock, receiveBuffer, recvMsgSize, 0, (struct sockaddr *) &echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize) 
-                    {
-                        printf("Failure on sendTo, client: %s, errno:%d\n", inet_ntoa(echoClntAddr.sin_addr),errno);
-                    }    
+                    printf("The client %s session is terminated", inet_ntoa(echoClntAddr.sin_addr));                            
                 }
                 else
                 {
-                    printf("The client %s session is terminated", inet_ntoa(echoClntAddr.sin_addr));
+                    if (sendto(sock, receiveBuffer, recvMsgSize, 0, (struct sockaddr *) &echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize) 
+                    {
+                        printf("Failure on sendTo, client: %s, errno:%d\n", inet_ntoa(echoClntAddr.sin_addr),errno);
+                    }
                 }
             }
             free(receiveBuffer);
