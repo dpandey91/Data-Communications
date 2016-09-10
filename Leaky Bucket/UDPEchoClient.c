@@ -26,12 +26,14 @@ unsigned int numberOfTrials;
 unsigned long totalBytesSent;
 unsigned long totalBytesLost;
 unsigned long avgSendingRate;
-unsigned long avgLossRate;
+double avgLossRate;
 double totalRTT,minRTT=0.0,maxRTT=0.0;
 int bStop;
 struct timeval *opTime1;
 int completeIter = 0;
 int sock;                          /* Socket descriptor */
+unsigned int bMode;
+double* RTT;
 
 char Version[] = "1.1";   
 
@@ -89,7 +91,7 @@ int main(int argc, char *argv[])
     unsigned int messageSize = 1472;
     
     //Default mode is RTT i.e. 0 (For one way its 1)
-    unsigned int bMode = 0;
+    bMode = 0;
     
     //Default no. of iteration is 1
     int nIterations = 10;
@@ -98,6 +100,8 @@ int main(int argc, char *argv[])
     int bDebugFlag = 0;
     
     double meanRTT = 0.0, stdRTT = 0.0;
+
+    int i = 0;
 
     //Initialize values
     numberOfTimeOuts = 0;
@@ -186,7 +190,7 @@ int main(int argc, char *argv[])
     ((SndMsg*)sndMessageData)->SequenceNumber = htonl(seqNumber++); ;
     ((SndMsg*)sndMessageData)->SessionMode = htons(bMode);
     
-    double RTT[nIterations];
+    RTT = calloc(nIterations, sizeof(double));
     double lastBktTime = 0.0;
     double currBktTime = 0.0;
 
@@ -317,6 +321,7 @@ void clientCNTCCode()
     struct timeval *opTime;
     struct timeval opTV;
     double usec4 = 0.0;
+    int i = 0;
     opTime = &opTV;
     gettimeofday(opTime, NULL);
     usec4 = ((opTime->tv_sec) * 1000000 + (opTime->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
