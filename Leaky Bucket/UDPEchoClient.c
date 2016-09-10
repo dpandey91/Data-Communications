@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
     printf("\nTotal Msg Sent: %lu Avg sending rate: %lu seconds  ", totalBytesSent, avgSendingRate);
     if(bMode == 0)
     {
-        printf("MinRTT: %0.3f MaxRTT: %0.3f MeanRTT: %0.3f StdDevRTT: %0.3f Avg loss rate: %0.3f \n", minRTT/1000000, maxRTT/1000000, meanRTT, stdRTT, avgLossRate);
+        printf("MinRTT: %0.6f MaxRTT: %0.6f MeanRTT: %0.6f StdDevRTT: %0.6f Avg loss rate: %0.3f \n", minRTT/1000000, maxRTT/1000000, meanRTT, stdRTT, avgLossRate);
     }
     exit(0);
 }
@@ -347,7 +347,7 @@ void clientCNTCCode()
     printf("\nTotal Msg Sent: %lu Avg sending rate: %lu seconds  ", totalBytesSent, avgSendingRate);
     if(bMode == 0)
     {
-        printf("MinRTT: %0.3f MaxRTT: %0.3f MeanRTT: %0.3f StdDevRTT: %0.3f Avg loss rate: %0.3f \n", minRTT/1000000, maxRTT/1000000, meanRTT, stdRTT, avgLossRate);
+        printf("MinRTT: %0.6f MaxRTT: %0.6f MeanRTT: %0.6f StdDevRTT: %0.6f Avg loss rate: %0.3f \n", minRTT/1000000, maxRTT/1000000, meanRTT, stdRTT, avgLossRate);
     }
     close(sock);
     exit(0);
