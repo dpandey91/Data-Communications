@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
                     if(usec3 < minRTT)
 		        minRTT = usec3;
                     if(usec3 > maxRTT)
-		        minRTT = usec3;
+		        maxRTT = usec3;
                     totalRTT += usec3;
                     RTT[completeIter++] = usec3;    
                 }
