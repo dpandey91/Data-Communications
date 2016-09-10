@@ -112,8 +112,6 @@ int main(int argc, char *argv[])
     
     printf("UDPEchoServer Leaky Bucket implemenatation: Server starting at Port:%d\n", echoServPort);    
 
-    receiveBuffer = malloc(MAX_MSG_SIZE);
-        
     //Set signal handler so we can exit
     signal(SIGINT, serverCNTCCode);
     
@@ -139,6 +137,7 @@ int main(int argc, char *argv[])
     
     for (;;) /* Run forever */
     {
+        receiveBuffer = malloc(MAX_MSG_SIZE);
         /* Set the size of the in-out parameter */
         cliAddrLen = sizeof(echoClntAddr);
 
