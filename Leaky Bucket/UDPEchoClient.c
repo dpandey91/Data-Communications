@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
     {
         if(nIterations == 1)
         {
-            memset(*(sndMessageData+16), 1, 8);
+            memset((sndMessageData+16), 1, 8);
         }
         
         if(messageSize > currBucketSz)
