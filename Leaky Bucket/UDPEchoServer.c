@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
             
             recvPacketMsgSz = ntohs(((RecvMsg*)receiveBuffer)->MessageSize);
             bMode = ntohs(((RecvMsg*)receiveBuffer)->SessionMode);
-            seqNumber = ntohs(((RecvMsg*)receiveBuffer)->SequenceNumber);
+            seqNumber = ntohl(((RecvMsg*)receiveBuffer)->SequenceNumber);
                         
             randomRate = generateRandom();
             if(randomRate <= lossRate)
@@ -227,6 +227,7 @@ int main(int argc, char *argv[])
                     printf("The client %s session is terminated", inet_ntoa(echoClntAddr.sin_addr));
                 }
             }
+            free(receiveBuffer);
         }        
     }
 }
@@ -272,6 +273,6 @@ void serverCNTCCode()
     }
     
     close(sock);
-
+    free(connectInfo);
     exit(0);
 }

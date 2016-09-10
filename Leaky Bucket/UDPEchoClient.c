@@ -18,16 +18,6 @@
 #include <sys/time.h>
 #include <time.h>
 
-//Maximum message size is defined as 60K
-#define MAX_MSG_SIZE 60000
-
-/*
-void DieWithError(char *errorMessage){
-    printf("%s", errorMessage);
-    exit(0);
-}
-*/
-
 void clientCNTCCode();
 void CatchAlarm(int ignored);
 
@@ -51,8 +41,8 @@ int main(int argc, char *argv[])
     unsigned short echoServPort;        /* Echo server port */
     unsigned int fromSize;           /* In-out of address size for recvfrom() */
     char *servIP;                       /* IP address of server */
-    char *sndMessageData;                  /* String to send to echo server */
-    char *recvMessageData;                  /* String to send to echo server */
+    void* sndMessageData;                  /* String to send to echo server */
+    void* recvMessageData;                  /* String to send to echo server */
     int respStringLen;               /* Length of received response */
     struct hostent *thehost;	        /* Hostent from gethostbyname() */
 
@@ -186,11 +176,12 @@ int main(int argc, char *argv[])
     if (sigaction(SIGALRM, &myaction, 0) < 0)
        DieWithError("sigaction failed for sigalarm");
 
-    sndMessageData = malloc(messageSize);
-    memset(sndMessageData, '1', messageSize);
-    
     recvMessageData = malloc(messageSize);
-    memset(recvMessageData, '0', messageSize);
+    
+    sndMessageData = malloc(messageSize);
+    (SndMsg*)sndMessageData->MessageSize = htons(messageSize);
+    (SndMsg*)sndMessageData->SequenceNumber = htonl(seqNumber++); ;
+    (SndMsg*)sndMessageData->SessionMode = htons(bMode);
     
     double RTT[nIterations];
     int completeIter = 0;
@@ -269,6 +260,9 @@ int main(int argc, char *argv[])
                 }
             }
             
+            free(recvMessageData);
+            free(sndMessageData);
+            
             nIterations--;
             numberOfTrials++; 
         }
@@ -277,8 +271,6 @@ int main(int argc, char *argv[])
     gettimeofday(opTime2, NULL);
     usec1 = ((opTime2->tv_sec) * 1000000 + (opTime2->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
 
-    printf("Total test time %f \n", usec1);    
-    printf("totalBytesSent : %lu \n", totalBytesSent);
     if (numberOfTrials != 0) 
         avgSendingRate = (totalBytesSent * 1000000/usec1) * 8;
     
