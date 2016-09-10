@@ -179,9 +179,9 @@ int main(int argc, char *argv[])
     recvMessageData = malloc(messageSize);
     
     sndMessageData = malloc(messageSize);
-    (SndMsg*)sndMessageData->MessageSize = htons(messageSize);
-    (SndMsg*)sndMessageData->SequenceNumber = htonl(seqNumber++); ;
-    (SndMsg*)sndMessageData->SessionMode = htons(bMode);
+    ((SndMsg*)sndMessageData)->MessageSize = htons(messageSize);
+    ((SndMsg*)sndMessageData)->SequenceNumber = htonl(seqNumber++); ;
+    ((SndMsg*)sndMessageData)->SessionMode = htons(bMode);
     
     double RTT[nIterations];
     int completeIter = 0;
