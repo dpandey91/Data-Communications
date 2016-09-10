@@ -32,5 +32,15 @@
 #endif
 #endif
 
+typedef struct MsgFormat
+{
+    unsigned int SequenceNumber;
+    unsigned int sec;
+    unsigned int msec;
+    unsigned short MessageSize;
+    unsigned short SessionMode;
+    void* msgData;
+}SndMsg, RecvMsg;
+
 void DieWithError(char *errorMessage);  /* External error handling function */
 

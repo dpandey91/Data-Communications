@@ -42,7 +42,15 @@ int sock;                           /* Socket */
 
 void DieWithError(char *errorMessage);  /* External error handling function */
 
-void clientCNTCCode();
+void serverCNTCCode();
+
+//Returns 0 is false else true
+int checkAllOne(unsigned int value)
+{ 
+    unsigned int mask = (1ULL << 32) - 1;
+    value &= mask;
+    return value == mask || val == 0;
+}
 
 double generateRandom()
 {
@@ -57,8 +65,10 @@ int main(int argc, char *argv[])
     struct sockaddr_in echoClntAddr;    /* Client address */
     unsigned int cliAddrLen;            /* Length of incoming message */
     unsigned short echoServPort;        /* Server port */
-    char receiveBuffer[MAX_MSG_SIZE];   /* Buffer for receive string */
+    void* receiveBuffer;                /* Buffer for receive string */
     int recvMsgSize;                    /* Size of received message */
+    void* sndBuffer;                    /* Buffer for send string */
+    int sndMsgSize;                    /* Size of send message */
     double randomRate, lossRate;        /* Lost rate at which server should simulate packet loss */
     int debugFlag;                      /* Debug flag option */
     
@@ -69,8 +79,11 @@ int main(int argc, char *argv[])
     //Set default new connection to 1 i.e. its new
     int i = 0, bCheckNewConn = 1, bPacketLoss = 0;
     
+    unsigned int seqNumber = 0;
+    
+    int recvPacketMsgSz = 0;
+    
     //Mode of operation. Default is RTT i.e. 0
-    //TODO: Extract from struct
     int bMode = 0;
     
     if (argc < 2)                   /* Test for correct number of parameters */
@@ -99,8 +112,10 @@ int main(int argc, char *argv[])
     
     printf("UDPEchoServer Leaky Bucket implemenatation: Server starting at Port:%d\n", echoServPort);    
 
+    receiveBuffer = malloc(MAX_MSG_SIZE);
+        
     //Set signal handler so we can exit
-    signal(SIGINT, clientCNTCCode);
+    signal(SIGINT, serverCNTCCode);
     
     /* Create socket for sending/receiving datagrams */
     if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0){
@@ -137,6 +152,10 @@ int main(int argc, char *argv[])
         {
             printf("Recvd from client %s\n", inet_ntoa(echoClntAddr.sin_addr));
             
+            recvPacketMsgSz = ntohs(((RecvMsg*)receiveBuffer)->MessageSize);
+            bMode = ntohs(((RecvMsg*)receiveBuffer)->SessionMode);
+            seqNumber = ntohs(((RecvMsg*)receiveBuffer)->SequenceNumber);
+                        
             randomRate = generateRandom();
             if(randomRate <= lossRate)
             {
@@ -161,7 +180,7 @@ int main(int argc, char *argv[])
                   connectInfo[i].clientEndTs = (ptrTime->tv_sec) * 1000000 + (ptrTime->tv_usec);
                   
                   if(bPacketLoss){
-                      connectInfo[i].nBytesLost += recvMsgSize;    
+                      connectInfo[i].nBytesLost += recvMsgSize;
                   }
                   else{
                       connectInfo[i].nBytesRecvd += recvMsgSize;
@@ -172,6 +191,8 @@ int main(int argc, char *argv[])
                  
             if(bCheckNewConn)
             {
+                printf("The client %s session is created", inet_ntoa(echoClntAddr.sin_addr));
+                
                 connectInfo[totalClientConnections].client_ipAddr = echoClntAddr.sin_addr;
                 connectInfo[totalClientConnections].port = echoClntAddr.sin_port;
                 connectInfo[totalClientConnections].noOfRecieves = 1;
@@ -186,26 +207,31 @@ int main(int argc, char *argv[])
                 }
 
                 totalClientConnections++;
-                bCheckNewConn = 0;
             }
             
-            //TODO: Remove this...redundant
             //Reset so we can handle new connection next time
             bCheckNewConn = 1;
             
             if(bMode == 0 && bPacketLoss == 0)
             {
                 //This means its RTT mode
-                if (sendto(sock, receiveBuffer, recvMsgSize, 0, (struct sockaddr *) &echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize) 
+                if(checkAllOne(seqNumber))
                 {
-                    printf("Failure on sendTo, client: %s, errno:%d\n", inet_ntoa(echoClntAddr.sin_addr),errno);
+                    if (sendto(sock, receiveBuffer, recvMsgSize, 0, (struct sockaddr *) &echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize) 
+                    {
+                        printf("Failure on sendTo, client: %s, errno:%d\n", inet_ntoa(echoClntAddr.sin_addr),errno);
+                    }    
+                }
+                else
+                {
+                    printf("The client %s session is terminated", inet_ntoa(echoClntAddr.sin_addr));
                 }
             }
         }        
     }
 }
 
-void clientCNTCCode()
+void serverCNTCCode()
 {
     char clientIpAddr[INET_ADDRSTRLEN];
     int port = 0;
@@ -213,7 +239,6 @@ void clientCNTCCode()
     unsigned long totalClientBytesRecvd = 0, clientBytesRecvd = 0;
     unsigned long avgThroughput = 0;
     double avgLossRate = 0;
-
 
     int i = 0;
 
@@ -242,7 +267,7 @@ void clientCNTCCode()
         //Avg loss rate 
         avgLossRate = (double) connectInfo[i].nBytesLost / sessionDuration;
         
-        printf("IP: %s Port: %d SessionDuration: %0.3f BytesReceived: %lu AvgThrouput: %lu AvgLossRate: %f", 
+        printf("For each client=> IP: %s Port: %d SessionDuration: %0.3f BytesReceived: %lu AvgThrouput: %lu AvgLossRate: %f \n", 
                 clientIpAddr, port, sessionDuration, clientBytesRecvd, avgThroughput, avgLossRate);
     }
     
