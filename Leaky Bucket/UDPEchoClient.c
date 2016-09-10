@@ -27,9 +27,10 @@ unsigned long totalBytesSent;
 unsigned long totalBytesLost;
 unsigned long avgSendingRate;
 unsigned long avgLossRate;
-double totalElapsedTime;
+double totalRTT;
 int bStop;
 struct timeval *opTime1;
+int completeIter = 0;
 
 char Version[] = "1.1";   
 
@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
     totalBytesSent = 0;
     avgSendingRate = 0;
     avgLossRate = 0;
-    totalElapsedTime = 0;
+    totalRTT = 0;
     totalBytesLost = 0;
     numberOfTrials = 0;
     bStop = 0;
@@ -95,6 +96,8 @@ int main(int argc, char *argv[])
     
     //Default value for debug flag is false
     int bDebugFlag = 0;
+    
+    double meanRTT = 0.0, stdRTT = 0.0;
 
     //Initialize values
     numberOfTimeOuts = 0;
@@ -184,7 +187,6 @@ int main(int argc, char *argv[])
     ((SndMsg*)sndMessageData)->SessionMode = htons(bMode);
     
     double RTT[nIterations];
-    int completeIter = 0;
     double lastBktTime = 0.0;
     double currBktTime = 0.0;
 
@@ -261,6 +263,7 @@ int main(int argc, char *argv[])
                     gettimeofday(rttTime2, NULL);
                     usec3 = ((rttTime2->tv_sec) * 1000000 + (rttTime2->tv_usec)) - ((rttTime1->tv_sec) * 1000000 + (rttTime1->tv_usec));
                     printf("RTT value for complete iter %d is %f \n", completeIter, usec3);
+                    totalRTT += usec3;
                     RTT[completeIter++] = usec3;    
                 }
             }
@@ -281,6 +284,14 @@ int main(int argc, char *argv[])
     
     if (numberOfTimeOuts != 0) 
         avgLossRate = ((numberOfTimeOuts*100)/numberOfTrials);
+    
+    meanRTT = (totalRTT/completeIter);
+    
+    //Standard Deviation
+    for(i=0; i < completeIter; i++)
+        stdRTT += (RTT[i]-meanRTT) * (RTT[i]-meanRTT);
+
+    stdRTT /= numberOfTrials;
 
     printf("\nAvg sending rate: %ld microseconds Loss: %ld Percent\n", avgSendingRate, avgLossRate);
     exit(0);
@@ -290,6 +301,7 @@ void CatchAlarm(int ignored) { }
 
 void clientCNTCCode() 
 {
+    double meanRTT = 0.0, stdRTT = 0.0;
     struct timeval *opTime;
     struct timeval opTV;
     double usec4 = 0.0;
@@ -306,6 +318,14 @@ void clientCNTCCode()
     
     if (numberOfTimeOuts != 0) 
         avgLossRate = ((numberOfTimeOuts*100)/numberOfTrials);
+    
+    meanRTT = (totalRTT/completeIter);
+    
+    //Standard Deviation
+    for(i=0; i < completeIter; i++)
+        stdRTT += (RTT[i]-meanRTT) * (RTT[i]-meanRTT);
+
+    stdRTT /= numberOfTrials;
     
     printf("\nAvg Ping: %ld microseconds Loss: %ld Percent\n", avgSendingRate, avgLossRate);
 }
