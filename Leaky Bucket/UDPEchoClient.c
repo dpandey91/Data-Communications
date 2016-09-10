@@ -211,6 +211,11 @@ int main(int argc, char *argv[])
     
     while (nIterations > 0 && bStop != 1) 
     {
+        if(nIterations == 1)
+        {
+            memset(*(sndMessageData+16), 1, 8);
+        }
+        
         if(messageSize > currBucketSz)
         {
             gettimeofday(bucketTime2, NULL);

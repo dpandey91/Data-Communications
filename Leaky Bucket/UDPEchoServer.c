@@ -55,7 +55,7 @@ int checkAllOne(unsigned int value)
 double generateRandom()
 {
     double num = (double)rand() / (double)RAND_MAX ;
-    printf("Random number generated is %f", num);
+    printf("Random number generated is %f \n", num);
     return num;
 }
 
@@ -142,8 +142,7 @@ int main(int argc, char *argv[])
         cliAddrLen = sizeof(echoClntAddr);
 
         /* Block until receive message from a client */
-        if ((recvMsgSize = recvfrom(sock, receiveBuffer, MAX_MSG_SIZE, 0,
-            (struct sockaddr *) &echoClntAddr, &cliAddrLen)) < 0)
+        if ((recvMsgSize = recvfrom(sock, receiveBuffer, MAX_MSG_SIZE, 0, (struct sockaddr *) &echoClntAddr, &cliAddrLen)) < 0)
         {
             printf("Failure on recvfrom, client: %s, errno:%d\n", inet_ntoa(echoClntAddr.sin_addr),errno);
         }
@@ -213,18 +212,15 @@ int main(int argc, char *argv[])
             
             if(bMode == 0 && bPacketLoss == 0)
             {
-                //This means its RTT mode
-                if(checkAllOne(seqNumber))
+                if (sendto(sock, receiveBuffer, recvMsgSize, 0, (struct sockaddr *) &echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize) 
                 {
-                    printf("The client %s session is terminated", inet_ntoa(echoClntAddr.sin_addr));                            
+                    printf("Failure on sendTo, client: %s, errno:%d\n", inet_ntoa(echoClntAddr.sin_addr),errno);
                 }
-                else
-                {
-                    if (sendto(sock, receiveBuffer, recvMsgSize, 0, (struct sockaddr *) &echoClntAddr, sizeof(echoClntAddr)) != recvMsgSize) 
-                    {
-                        printf("Failure on sendTo, client: %s, errno:%d\n", inet_ntoa(echoClntAddr.sin_addr),errno);
-                    }
-                }
+            }
+            
+            if(checkAllOne(seqNumber))
+            {
+                printf("The client %s session is terminated", inet_ntoa(echoClntAddr.sin_addr));                            
             }
             free(receiveBuffer);
         }        

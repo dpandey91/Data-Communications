@@ -34,11 +34,11 @@
 
 typedef struct MsgFormat
 {
-    unsigned int SequenceNumber;
-    unsigned int sec;
-    unsigned int msec;
     unsigned short MessageSize;
     unsigned short SessionMode;
+    unsigned int sec;
+    unsigned int msec;
+    unsigned int SequenceNumber;
     void* msgData;
 }SndMsg, RecvMsg;
 
