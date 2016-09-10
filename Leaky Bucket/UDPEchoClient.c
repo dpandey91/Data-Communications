@@ -31,12 +31,12 @@ double totalRTT,minRTT=0.0,maxRTT=0.0;
 int bStop;
 struct timeval *opTime1;
 int completeIter = 0;
+int sock;                          /* Socket descriptor */
 
 char Version[] = "1.1";   
 
 int main(int argc, char *argv[])
 {
-    int sock;                          /* Socket descriptor */
     struct sockaddr_in echoServAddr;    /* Echo server address */
     struct sockaddr_in fromAddr;     /* Source address of echo */
     unsigned short echoServPort;        /* Echo server port */
@@ -263,10 +263,11 @@ int main(int argc, char *argv[])
                     gettimeofday(rttTime2, NULL);
                     usec3 = ((rttTime2->tv_sec) * 1000000 + (rttTime2->tv_usec)) - ((rttTime1->tv_sec) * 1000000 + (rttTime1->tv_usec));
                     printf("RTT value for complete iter %d is %f \n", completeIter, usec3);
+                    
                     if(usec3 < minRTT)
-		    minRTT = usec3;
+		        minRTT = usec3;
                     if(usec3 > maxRTT)
-		    minRTT = usec3;
+		        minRTT = usec3;
                     totalRTT += usec3;
                     RTT[completeIter++] = usec3;    
                 }
@@ -279,6 +280,7 @@ int main(int argc, char *argv[])
     
     free(recvMessageData);
     free(sndMessageData);
+    close(sock);
 
     gettimeofday(opTime2, NULL);
     usec1 = ((opTime2->tv_sec) * 1000000 + (opTime2->tv_usec)) - ((opTime1->tv_sec) * 1000000 + (opTime1->tv_usec));
@@ -290,14 +292,20 @@ int main(int argc, char *argv[])
         avgLossRate = ((numberOfTimeOuts*100)/numberOfTrials);
     
     meanRTT = (totalRTT/completeIter);
+    meanRTT /= 1000000;                          /* Convert to seconds */
     
     //Standard Deviation
     for(i=0; i < completeIter; i++)
         stdRTT += (RTT[i]-meanRTT) * (RTT[i]-meanRTT);
 
     stdRTT /= numberOfTrials;
+    stdRTT /= 1000000;                          /*Convert to seconds*/
 
-    printf("\nAvg sending rate: %ld microseconds Loss: %ld Percent\n", avgSendingRate, avgLossRate);
+    printf("\nTotal Msg Sent: %lu Avg sending rate: %lu seconds  ", totalBytesSent, avgSendingRate);
+    if(bMode == 0)
+    {
+        printf("MinRTT: %0.3f MaxRTT: %0.3f MeanRTT: %0.3f StdDevRTT: %0.3f Avg loss rate: %0.3f \n", minRTT/1000000, maxRTT/1000000, meanRTT, stdRTT, avgLossRate);
+    }
     exit(0);
 }
 
@@ -331,5 +339,11 @@ void clientCNTCCode()
 
     stdRTT /= numberOfTrials;
     
-    printf("\nAvg Ping: %ld microseconds Loss: %ld Percent\n", avgSendingRate, avgLossRate);
-}
+    printf("\nTotal Msg Sent: %lu Avg sending rate: %lu seconds  ", totalBytesSent, avgSendingRate);
+    if(bMode == 0)
+    {
+        printf("MinRTT: %0.3f MaxRTT: %0.3f MeanRTT: %0.3f StdDevRTT: %0.3f Avg loss rate: %0.3f \n", minRTT/1000000, maxRTT/1000000, meanRTT, stdRTT, avgLossRate);
+    }
+    close(sock);
+    exit(0);
+}  
